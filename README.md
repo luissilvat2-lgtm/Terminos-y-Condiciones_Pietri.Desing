@@ -1,1 +1,0 @@
-# Terminos-y-Condiciones_Pietri.Desing
