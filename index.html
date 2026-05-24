@@ -1,0 +1,1301 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Contrato & Pago · Luis Pietri</title>
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow:wght@300;400;500&family=Barlow+Condensed:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <!-- sin librería externa, usamos fetch directo a Formspree -->
+  <style>
+    :root {
+      --tq: #00C8BE;
+      --tq-dim: rgba(0,200,190,0.12);
+      --tq-line: rgba(0,200,190,0.22);
+      --tq-line-s: rgba(0,200,190,0.38);
+      --black: #080C0C;
+      --surface: #0F1515;
+      --surface2: #131E1E;
+      --text: #D8EEEC;
+      --muted: #4A7070;
+      --muted2: #2A5050;
+      --error: #FF4F5A;
+      --ok: #00C8BE;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--black);
+      color: var(--text);
+      font-family: 'Barlow', sans-serif;
+      font-weight: 300;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid var(--tq-line-s);
+    }
+    .hero-left {
+      padding: 72px 60px;
+      border-right: 1px solid var(--tq-line-s);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero-left::before {
+      content: 'LP';
+      position: absolute;
+      bottom: -50px; left: -16px;
+      font-family: 'Anton', sans-serif;
+      font-size: 240px;
+      color: rgba(0,200,190,0.04);
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+    .hero-right {
+      padding: 72px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 32px;
+    }
+    .tag {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--tq);
+    }
+    .hero-name {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(48px, 5.5vw, 80px);
+      line-height: 0.95;
+      letter-spacing: 0.01em;
+      text-transform: uppercase;
+      color: #fff;
+    }
+    .hero-name span { display: block; color: var(--tq); }
+    .hero-cred {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+      border-top: 1px solid var(--tq-line-s);
+      padding-top: 18px;
+      line-height: 2;
+    }
+    .hero-cred strong { color: var(--text); font-weight: 500; }
+    .hero-intro p {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.75;
+      max-width: 380px;
+    }
+    .hero-intro p strong { color: var(--text); font-weight: 400; }
+    .doc-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .doc-meta-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-top: 1px solid var(--tq-line);
+      padding-top: 10px;
+    }
+    .doc-meta-row:first-child { border-top: none; }
+    .doc-meta-row span:first-child {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .doc-meta-row span:last-child {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      color: var(--text);
+      letter-spacing: 0.06em;
+    }
+
+    /* ── TABS ── */
+    .tabs-bar {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      border-bottom: 1px solid var(--tq-line-s);
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: var(--black);
+    }
+    .tab-btn {
+      padding: 20px 48px;
+      font-family: 'Anton', sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+      text-align: left;
+      border-right: 1px solid var(--tq-line-s);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      position: relative;
+    }
+    .tab-btn:last-child { border-right: none; }
+    .tab-btn.active { color: var(--tq); background: var(--surface); }
+    .tab-btn.active::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--tq);
+    }
+    .tab-num {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--muted);
+      padding: 3px 8px;
+      border: 1px solid var(--tq-line-s);
+    }
+    .tab-btn.active .tab-num { border-color: var(--tq); color: var(--tq); }
+
+    /* ── PANEL ── */
+    .panel { display: none; }
+    .panel.active { display: block; animation: fadeUp 0.3s ease; }
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(8px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+
+    /* ── SECTION LAYOUT ── */
+    .section {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      border-bottom: 1px solid var(--tq-line);
+    }
+    .sec-label {
+      padding: 48px 48px 48px 60px;
+      background: var(--surface);
+      border-right: 1px solid var(--tq-line);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .sec-num {
+      font-family: 'Anton', sans-serif;
+      font-size: 40px;
+      color: rgba(0,200,190,0.1);
+      line-height: 1;
+    }
+    .sec-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--tq);
+    }
+    .sec-desc {
+      font-size: 11px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 150px;
+    }
+    .sec-body {
+      padding: 48px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* ── CONTRACT TEXT ── */
+    .clause {
+      border-left: 2px solid var(--tq-line-s);
+      padding-left: 24px;
+    }
+    .clause-title {
+      font-family: 'Anton', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--tq);
+      margin-bottom: 14px;
+    }
+    .clause p {
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.75;
+      margin-bottom: 10px;
+    }
+    .clause p strong {
+      color: var(--text);
+      font-weight: 400;
+    }
+    .clause p:last-child { margin-bottom: 0; }
+    .clause-note {
+      background: var(--surface2);
+      border: 1px solid var(--tq-line-s);
+      border-left: 3px solid var(--tq);
+      padding: 14px 18px;
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.65;
+    }
+    .clause-note strong { color: var(--tq); font-weight: 500; }
+
+    /* ── ACCEPTANCE ── */
+    .accept-zone {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      border-bottom: 1px solid var(--tq-line-s);
+    }
+    .accept-aside {
+      padding: 48px 48px 48px 60px;
+      background: var(--surface);
+      border-right: 1px solid var(--tq-line);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+    .accept-aside .tag { font-size: 10px; }
+    .accept-aside p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .accept-body {
+      padding: 48px 60px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .accept-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 16px 20px;
+      border: 1px solid var(--tq-line);
+      background: var(--surface);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+    .accept-item:hover { border-color: var(--tq-line-s); }
+    .accept-item.checked { border-color: var(--tq); background: var(--tq-dim); }
+    .accept-item input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--tq);
+      cursor: pointer;
+      flex-shrink: 0;
+      margin-top: 3px;
+    }
+    .accept-item .ai-text {
+      font-size: 13px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+    .accept-item .ai-text strong { color: var(--text); font-weight: 500; }
+    .accept-item.checked .ai-text { color: var(--text); }
+
+    .sig-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-top: 8px;
+    }
+    .sig-field { display: flex; flex-direction: column; gap: 8px; }
+    .sig-field label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .sig-field input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--tq-line-s);
+      padding: 10px 0;
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      border-radius: 0;
+    }
+    .sig-field input:focus { border-bottom-color: var(--tq); }
+    .sig-field input::placeholder { color: var(--muted2); }
+
+    /* ── PROCEED BUTTON ── */
+    .proceed-zone {
+      padding: 48px 60px;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 20px;
+      border-bottom: 1px solid var(--tq-line-s);
+    }
+    .proceed-note { font-size: 12px; color: var(--muted); font-family:'Barlow Condensed'; letter-spacing:0.08em; }
+    .btn-proceed {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    .btn-proceed:hover { transform: translateX(6px); }
+    .btn-proceed:disabled { opacity: 0.3; cursor: not-allowed; transform: none; }
+    .btn-proceed .btn-text {
+      font-family: 'Anton', sans-serif;
+      font-size: 32px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .btn-proceed:hover .btn-text { color: var(--tq); }
+    .btn-proceed .btn-arrow {
+      width: 44px; height: 44px;
+      border: 1px solid var(--tq);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .btn-proceed:hover .btn-arrow { background: var(--tq); }
+    .btn-proceed:hover .btn-arrow svg path { stroke: var(--black); }
+
+    /* ── PAGO PANEL ── */
+    .field { display: flex; flex-direction: column; gap: 8px; }
+    .row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    label {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    label .req { color: var(--tq); }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="number"],
+    select,
+    textarea {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--tq-line-s);
+      padding: 12px 0;
+      font-family: 'Barlow', sans-serif;
+      font-size: 15px;
+      font-weight: 300;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s;
+      appearance: none;
+      border-radius: 0;
+    }
+    input::placeholder, textarea::placeholder { color: var(--muted2); }
+    input:focus, select:focus, textarea:focus { border-bottom-color: var(--tq); }
+    textarea { resize: vertical; min-height: 80px; }
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%2300C8BE'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 4px center;
+      padding-right: 24px;
+      cursor: pointer;
+    }
+    select option { background: #0F1515; }
+
+    /* Conditional fields */
+    .cond-block {
+      display: none;
+      flex-direction: column;
+      gap: 24px;
+      border-left: 2px solid var(--tq-line-s);
+      padding-left: 24px;
+      margin-top: 4px;
+      animation: fadeUp 0.25s ease;
+    }
+    .cond-block.visible { display: flex; }
+
+    /* File upload */
+    .file-upload-wrap {
+      border: 1px dashed var(--tq-line-s);
+      padding: 28px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .file-upload-wrap:hover { border-color: var(--tq); background: var(--tq-dim); }
+    .file-upload-wrap input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .file-upload-wrap input[type="file"]:focus { border-bottom: none; }
+    .upload-icon { font-size: 28px; margin-bottom: 8px; }
+    .upload-label-text {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .upload-label-text strong { color: var(--tq); }
+    .file-name {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--tq);
+      font-family: 'Barlow Condensed', sans-serif;
+      letter-spacing: 0.08em;
+      display: none;
+    }
+
+    /* Method badges */
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--tq-line);
+    }
+    .method-opt {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      padding: 18px 12px;
+      background: var(--black);
+      cursor: pointer;
+      transition: background 0.15s;
+      border: 2px solid transparent;
+      text-align: center;
+    }
+    .method-opt:hover { background: var(--surface); }
+    .method-opt.selected { background: var(--tq-dim); border: 2px solid var(--tq); }
+    .method-opt input[type="radio"] { display: none; }
+    .method-icon { font-size: 22px; }
+    .method-name {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+    .method-opt.selected .method-name { color: var(--tq); }
+
+    /* Submit */
+    .submit-zone {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      border-bottom: 1px solid var(--tq-line-s);
+    }
+    .submit-aside {
+      padding: 48px 48px 48px 60px;
+      background: var(--surface);
+      border-right: 1px solid var(--tq-line);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 10px;
+    }
+    .submit-aside .tag { font-size: 10px; }
+    .submit-aside p { font-size: 12px; color: var(--muted); line-height: 1.6; }
+    .submit-aside a { color: var(--tq); text-decoration: none; font-size: 12px; }
+    .submit-main {
+      padding: 48px 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 16px;
+    }
+    .btn-submit {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      width: fit-content;
+      transition: transform 0.2s;
+    }
+    .btn-submit:hover { transform: translateX(8px); }
+    .btn-submit:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+    .btn-submit .btn-text {
+      font-family: 'Anton', sans-serif;
+      font-size: clamp(26px, 3vw, 42px);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #fff;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+    .btn-submit:hover .btn-text { color: var(--tq); }
+    .btn-submit .btn-arrow {
+      width: 48px; height: 48px;
+      border: 1px solid var(--tq);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover .btn-arrow { background: var(--tq); }
+    .btn-submit:hover .btn-arrow svg path { stroke: var(--black); }
+    .btn-note { font-size: 12px; color: var(--muted); font-family:'Barlow Condensed'; letter-spacing:0.08em; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spinner {
+      width: 20px; height: 20px;
+      border: 1px solid var(--muted);
+      border-top-color: var(--tq);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+    .btn-submit.loading .spinner { display: block; }
+
+    /* TOAST */
+    .toast {
+      position: fixed;
+      bottom: 32px; left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--surface);
+      border-top: 2px solid var(--tq);
+      color: var(--text);
+      padding: 18px 36px;
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      z-index: 200;
+      transition: transform 0.4s cubic-bezier(0.34,1.2,0.64,1);
+      white-space: nowrap;
+    }
+    .toast.show { transform: translateX(-50%) translateY(0); }
+    .toast.error { border-top-color: var(--error); }
+
+    /* FOOTER */
+    footer {
+      padding: 28px 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    footer p {
+      font-family: 'Barlow Condensed', sans-serif;
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 860px) {
+      .hero { grid-template-columns: 1fr; }
+      .hero-left { padding: 48px 28px; border-right: none; border-bottom: 1px solid var(--tq-line-s); }
+      .hero-right { padding: 48px 28px; }
+      .hero-left::before { font-size: 140px; }
+      .tabs-bar .tab-btn { padding: 16px 20px; font-size: 12px; }
+      .section, .accept-zone, .submit-zone { grid-template-columns: 1fr; }
+      .sec-label, .accept-aside, .submit-aside {
+        padding: 24px 28px;
+        border-right: none;
+        border-bottom: 1px solid var(--tq-line);
+        flex-direction: row;
+        align-items: center;
+        gap: 16px;
+      }
+      .sec-num { font-size: 28px; }
+      .sec-body, .accept-body, .submit-main { padding: 32px 28px; }
+      .row-2 { grid-template-columns: 1fr; }
+      .sig-row { grid-template-columns: 1fr; }
+      .method-grid { grid-template-columns: repeat(2,1fr); }
+      .proceed-zone { padding: 32px 28px; flex-direction: column; align-items: flex-start; }
+      footer { padding: 24px 28px; flex-direction: column; gap: 8px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ═══ HERO ═══════════════════════════════════════════════ -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="tag">Servicios Profesionales · Venezuela</div>
+    <div>
+      <div class="hero-name">Luis<span>Pietri</span></div>
+      <div class="hero-cred">
+        <strong>Lic. en Diseño Gráfico</strong><br>
+        Identidad Visual · Redes Sociales<br>
+        Branding · Comunicación Visual
+      </div>
+    </div>
+    <a href="mailto:luissilvat2@gmail.com" style="font-family:'Barlow Condensed';font-size:12px;letter-spacing:.1em;color:var(--muted);text-decoration:none;">luissilvat2@gmail.com</a>
+  </div>
+  <div class="hero-right">
+    <div>
+      <div class="tag" style="margin-bottom:18px;">Contrato de Servicios & Pago</div>
+      <div class="hero-intro">
+        <p>Este documento formaliza los <strong>términos y condiciones</strong> del servicio contratado. Lee cada cláusula con atención, acepta las condiciones y procede al registro de tu pago inicial.</p>
+      </div>
+    </div>
+    <div class="doc-meta">
+      <div class="doc-meta-row">
+        <span>Documento</span><span>Contrato de Diseño Gráfico</span>
+      </div>
+      <div class="doc-meta-row">
+        <span>Prestador</span><span>Luis Pietri — Lcdo. Diseño Gráfico</span>
+      </div>
+      <div class="doc-meta-row">
+        <span>Revisiones incluidas</span><span>3 rondas</span>
+      </div>
+      <div class="doc-meta-row">
+        <span>Anticipo requerido</span><span>50% del total</span>
+      </div>
+      <div class="doc-meta-row">
+        <span>Transferencia de derechos</span><span>Al 100% del pago</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ TABS ═════════════════════════════════════════════════ -->
+<div class="tabs-bar">
+  <button class="tab-btn active" id="tab-tc" onclick="switchTab('tc')">
+    <span class="tab-num">01</span> Términos & Condiciones
+  </button>
+  <button class="tab-btn" id="tab-pago" onclick="switchTab('pago')">
+    <span class="tab-num">02</span> Registro de Pago
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════
+     PANEL 01 — TÉRMINOS & CONDICIONES
+════════════════════════════════════════════════════════════ -->
+<div class="panel active" id="panel-tc">
+
+  <!-- CLAUSULA 1 -->
+  <div class="section">
+    <div class="sec-label">
+      <div class="sec-num">01</div>
+      <div class="sec-title">Condiciones Financieras</div>
+      <div class="sec-desc">Pagos, anticipos y métodos de liquidación</div>
+    </div>
+    <div class="sec-body">
+      <div class="clause">
+        <div class="clause-title">Cláusula Primera · Condiciones Financieras y Método de Pago</div>
+        <p><strong>1.1 Estructura del Anticipo (50%):</strong> Para dar inicio formal a cualquier fase del proyecto —incluyendo investigación, análisis de marca o bocetado— el Cliente deberá abonar obligatoriamente el <strong>cincuenta por ciento (50%)</strong> del valor total estipulado en la propuesta comercial. Sin la verificación efectiva de este fondo, el proyecto permanecerá congelado y no se agendarán horas de trabajo técnico.</p>
+        <p><strong>1.2 Liquidación de Cierre (50%):</strong> El cincuenta por ciento (50%) restante será requerido inmediatamente después de la aprobación del diseño final por parte del Cliente. Este pago final es una condición indispensable y estrictamente obligatoria antes de proceder a la exportación, empaquetado y entrega formal de los archivos finales en formatos editables o de alta resolución.</p>
+        <p><strong>1.3 Demoras y Retenciones:</strong> Si el Cliente retiene el pago de liquidación por un periodo mayor a <strong>quince (15) días calendario</strong> tras haber aprobado el diseño, el Prestador del Servicio se reserva el derecho de rescindir el contrato o aplicar recargos por almacenamiento de activos digitales.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLAUSULA 2 -->
+  <div class="section">
+    <div class="sec-label">
+      <div class="sec-num">02</div>
+      <div class="sec-title">Revisiones</div>
+      <div class="sec-desc">Límites de modificaciones y facturación excedente</div>
+    </div>
+    <div class="sec-body">
+      <div class="clause">
+        <div class="clause-title">Cláusula Segunda · Política de Modificaciones, Revisiones y Cambios</div>
+        <p><strong>2.1 Límite de Modificaciones Incluidas:</strong> El servicio estándar de diseño corporativo contempla estrictamente un máximo de <strong>tres (3) instancias de cambios o revisiones</strong> dentro del marco conceptual seleccionado. Una instancia se define como un listado consolidado de observaciones enviado por el Cliente de manera unificada para su aplicación simultánea.</p>
+        <p><strong>2.2 Estructura de Facturación Excedente:</strong> En caso de que el Cliente solicite modificaciones adicionales que excedan las 3 revisiones acordadas, cada nuevo cambio conceptual, estructural o tipográfico se facturará con un <strong>recargo adicional equivalente al 20% sobre el valor total del servicio contratado.</strong> Estos costes adicionales serán sumados al balance final y deberán cancelarse conjuntamente con el último hito de pago para poder liberar el material de identidad visual.</p>
+        <div class="clause-note">
+          <strong>Nota de Exceso de Cambios:</strong> Todo ajuste extra solicitado por el Cliente una vez agotados los 3 cambios reglamentarios implicará una facturación del <strong>20% del valor total del servicio</strong> por cada turno adicional de revisión, sin excepción alguna.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLAUSULA 3 -->
+  <div class="section">
+    <div class="sec-label">
+      <div class="sec-num">03</div>
+      <div class="sec-title">Propiedad Intelectual</div>
+      <div class="sec-desc">Derechos de uso y autoría</div>
+    </div>
+    <div class="sec-body">
+      <div class="clause">
+        <div class="clause-title">Cláusula Tercera · Propiedad Intelectual y Derechos de Uso</div>
+        <p><strong>3.1 Transferencia de Derechos:</strong> La totalidad de los derechos patrimoniales y de explotación comercial sobre el logotipo definitivo se transferirán de forma exclusiva al Cliente únicamente cuando se haya verificado la <strong>liquidación del 100% de los honorarios fijados.</strong></p>
+        <p><strong>3.2 Conceptos Descartados y Derechos de Autor:</strong> Todas las propuestas preliminares, bocetos y alternativas presentadas durante las fases intermedias y que no hayan sido seleccionadas como el logotipo final definitivo <strong>permanecen bajo la propiedad intelectual, autoría y control absoluto del Prestador del Servicio.</strong> El Cliente no podrá utilizarlas, divulgarlas ni reproducirlas bajo ninguna circunstancia.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CLAUSULA 4 -->
+  <div class="section">
+    <div class="sec-label">
+      <div class="sec-num">04</div>
+      <div class="sec-title">Proceso Operativo</div>
+      <div class="sec-desc">Plazos, respuesta y cancelación</div>
+    </div>
+    <div class="sec-body">
+      <div class="clause">
+        <div class="clause-title">Cláusula Cuarta · Proceso Operativo y Cancelación del Proyecto</div>
+        <p><strong>4.1 Plazos de Respuesta del Cliente:</strong> Para mantener el flujo de trabajo dinámico, el Cliente se compromete a brindar retroalimentación en un periodo no mayor a <strong>cinco (5) días laborables</strong> tras recibir una propuesta. El incumplimiento de este plazo pospondrá la fecha final de entrega de manera automática.</p>
+        <p><strong>4.2 Cancelación Anticipada:</strong> En caso de que el Cliente decida cancelar el proyecto de manera unilateral por causas ajenas al Prestador del Servicio una vez iniciados los trabajos, el depósito inicial del <strong>cincuenta por ciento (50%) no será reembolsable en ningún caso,</strong> actuando como compensación por las horas operativas y de consultoría invertidas.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ACEPTACIÓN -->
+  <div class="accept-zone">
+    <div class="accept-aside">
+      <div class="tag">Aceptación del Contrato</div>
+      <p>Todas las cláusulas deben ser aceptadas para continuar al registro de pago.</p>
+    </div>
+    <div class="accept-body">
+      <label class="accept-item" id="acc1" onclick="toggleAcc(this)">
+        <input type="checkbox" id="chk1"/>
+        <div class="ai-text">
+          Acepto la <strong>Cláusula Primera</strong> — He leído y comprendo la estructura de pagos: 50% de anticipo antes de iniciar y 50% al aprobar el diseño final. Entiendo que sin el anticipo el proyecto no comenzará.
+        </div>
+      </label>
+      <label class="accept-item" id="acc2" onclick="toggleAcc(this)">
+        <input type="checkbox" id="chk2"/>
+        <div class="ai-text">
+          Acepto la <strong>Cláusula Segunda</strong> — Entiendo que tengo derecho a un máximo de 3 rondas de revisiones incluidas. Cualquier modificación adicional será facturada al 20% del valor total del servicio por ronda.
+        </div>
+      </label>
+      <label class="accept-item" id="acc3" onclick="toggleAcc(this)">
+        <input type="checkbox" id="chk3"/>
+        <div class="ai-text">
+          Acepto la <strong>Cláusula Tercera</strong> — Comprendo que la transferencia de derechos ocurre únicamente al completar el 100% del pago. Los bocetos y propuestas no seleccionadas permanecen como propiedad intelectual del diseñador.
+        </div>
+      </label>
+      <label class="accept-item" id="acc4" onclick="toggleAcc(this)">
+        <input type="checkbox" id="chk4"/>
+        <div class="ai-text">
+          Acepto la <strong>Cláusula Cuarta</strong> — Me comprometo a dar respuesta en máximo 5 días laborables. En caso de cancelación unilateral, el anticipo del 50% no será reembolsable.
+        </div>
+      </label>
+      <label class="accept-item" id="acc5" onclick="toggleAcc(this)">
+        <input type="checkbox" id="chk5"/>
+        <div class="ai-text">
+          <strong>Declaración Final:</strong> Confirmo que he leído el presente contrato en su totalidad, que comprendo todas sus cláusulas y que acepto quedar sujeto a sus términos de manera voluntaria y sin reservas.
+        </div>
+      </label>
+
+      <!-- Firma digital -->
+      <div class="sig-row" style="margin-top:8px;">
+        <div class="sig-field">
+          <label>Nombre completo (firma digital) <span style="color:var(--tq)">*</span></label>
+          <input type="text" id="sig-nombre" placeholder="Escribe tu nombre completo"/>
+        </div>
+        <div class="sig-field">
+          <label>Correo electrónico <span style="color:var(--tq)">*</span></label>
+          <input type="email" id="sig-email" placeholder="tu@correo.com"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROCEDER -->
+  <div class="proceed-zone">
+    <p class="proceed-note">Debes aceptar todas las cláusulas y completar los datos para continuar</p>
+    <button class="btn-proceed" id="btn-proceed" disabled onclick="goToPago()">
+      <span class="btn-text">Continuar al Pago</span>
+      <div class="btn-arrow">
+        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+          <path d="M3 9h12M10 4l5 5-5 5" stroke="#00C8BE" stroke-width="1.5" stroke-linecap="square"/>
+        </svg>
+      </div>
+    </button>
+  </div>
+
+</div><!-- /panel-tc -->
+
+<!-- ═══════════════════════════════════════════════════════════
+     PANEL 02 — REGISTRO DE PAGO
+════════════════════════════════════════════════════════════ -->
+<div class="panel" id="panel-pago">
+<form id="form-pago" onsubmit="sendPago(event)">
+
+  <!-- 01 Datos personales -->
+  <div class="section">
+    <div class="sec-label">
+      <div class="sec-num">01</div>
+      <div class="sec-title">Datos Personales</div>
+      <div class="sec-desc">Información del titular del pago</div>
+    </div>
+    <div class="sec-body">
+      <div class="row-2">
+        <div class="field">
+          <label>Nombre completo del titular <span class="req">*</span></label>
+          <input type="text" name="titular" id="pago-nombre" placeholder="Nombre como aparece en la cuenta" required/>
+        </div>
+        <div class="field">
+          <label>Cédula de identidad / DNI <span class="req">*</span></label>
+          <input type="text" name="cedula" placeholder="Ej: V-12.345.678" required/>
+        </div>
+      </div>
+      <div class="row-2">
+        <div class="field">
+          <label>Correo electrónico <span class="req">*</span></label>
+          <input type="email" name="email_pago" id="pago-email" placeholder="tu@correo.com" required/>
+        </div>
+        <div class="field">
+          <label>WhatsApp / Teléfono</label>
+          <input type="tel" name="tel_pago" placeholder="+58 412 000 0000"/>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 02 Método de pago -->
+  <div class="section">
+    <div class="sec-label">
+      <div class="sec-num">02</div>
+      <div class="sec-title">Método de Pago</div>
+      <div class="sec-desc">Selecciona cómo realizaste el pago</div>
+    </div>
+    <div class="sec-body">
+
+      <div class="field">
+        <label>Selecciona tu método <span class="req">*</span></label>
+        <div class="method-grid" id="method-grid">
+          <label class="method-opt" onclick="selectMethod('pagomovil')">
+            <input type="radio" name="metodo" value="Pago Móvil"/>
+            <div class="method-icon">📱</div>
+            <div class="method-name">Pago Móvil</div>
+          </label>
+          <label class="method-opt" onclick="selectMethod('transferencia')">
+            <input type="radio" name="metodo" value="Transferencia Bancaria"/>
+            <div class="method-icon">🏦</div>
+            <div class="method-name">Transferencia Bancaria</div>
+          </label>
+          <label class="method-opt" onclick="selectMethod('usdt')">
+            <input type="radio" name="metodo" value="USDT — Binance"/>
+            <div class="method-icon">₿</div>
+            <div class="method-name">USDT Binance</div>
+          </label>
+          <label class="method-opt" onclick="selectMethod('paypal')">
+            <input type="radio" name="metodo" value="PayPal"/>
+            <div class="method-icon">🅿</div>
+            <div class="method-name">PayPal</div>
+          </label>
+        </div>
+      </div>
+
+      <!-- CONDICIONAL: Pago Móvil -->
+      <div class="cond-block" id="cond-pagomovil">
+        <div class="row-2">
+          <div class="field">
+            <label>Número de referencia <span class="req">*</span></label>
+            <input type="text" name="ref_pagomovil" placeholder="Ej: 004320123456789"/>
+          </div>
+          <div class="field">
+            <label>Monto pagado <span class="req">*</span></label>
+            <input type="number" name="monto_pagomovil" placeholder="Bs. / USD" step="0.01"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Banco emisor (Venezuela) <span class="req">*</span></label>
+          <select name="banco_emisor_pagomovil">
+            <option value="">Selecciona tu banco</option>
+            <option>Banco de Venezuela (BDV)</option>
+            <option>Banco Mercantil</option>
+            <option>Banesco</option>
+            <option>BBVA Provincial</option>
+            <option>Banco Bicentenario</option>
+            <option>Banco del Tesoro</option>
+            <option>BNC — Banco Nacional de Crédito</option>
+            <option>Bancamiga</option>
+            <option>Banplus</option>
+            <option>Banco Sofitasa</option>
+            <option>Banco Activo</option>
+            <option>BOD — Banco Occidental de Descuento</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Teléfono origen del Pago Móvil</label>
+          <input type="tel" name="tel_pagomovil" placeholder="+58 412 000 0000"/>
+        </div>
+        <div class="field">
+          <label>Captura / comprobante de pago <span class="req">*</span></label>
+          <div class="file-upload-wrap" id="wrap-pm">
+            <input type="file" name="capture_pagomovil" accept="image/*,.pdf" onchange="showFileName(this,'fname-pm')"/>
+            <div class="upload-icon">📎</div>
+            <div class="upload-label-text">Arrastra aquí o <strong>haz clic para adjuntar</strong></div>
+            <div class="upload-label-text" style="margin-top:4px;font-size:10px;">JPG, PNG o PDF · Máx. 10 MB</div>
+            <div class="file-name" id="fname-pm"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONDICIONAL: Transferencia Bancaria -->
+      <div class="cond-block" id="cond-transferencia">
+        <div class="row-2">
+          <div class="field">
+            <label>Número de referencia <span class="req">*</span></label>
+            <input type="text" name="ref_transferencia" placeholder="Número de operación bancaria"/>
+          </div>
+          <div class="field">
+            <label>Monto transferido <span class="req">*</span></label>
+            <input type="number" name="monto_transferencia" placeholder="Bs. / USD" step="0.01"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Banco emisor (Venezuela) <span class="req">*</span></label>
+          <select name="banco_emisor_transferencia">
+            <option value="">Selecciona tu banco</option>
+            <option>Banco de Venezuela (BDV)</option>
+            <option>Banco Mercantil</option>
+            <option>Banesco</option>
+            <option>BBVA Provincial</option>
+            <option>Banco Bicentenario</option>
+            <option>Banco del Tesoro</option>
+            <option>BNC — Banco Nacional de Crédito</option>
+            <option>Bancamiga</option>
+            <option>Banplus</option>
+            <option>Banco Sofitasa</option>
+            <option>Banco Activo</option>
+            <option>BOD — Banco Occidental de Descuento</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Captura / comprobante de transferencia <span class="req">*</span></label>
+          <div class="file-upload-wrap">
+            <input type="file" name="capture_transferencia" accept="image/*,.pdf" onchange="showFileName(this,'fname-tr')"/>
+            <div class="upload-icon">📎</div>
+            <div class="upload-label-text">Arrastra aquí o <strong>haz clic para adjuntar</strong></div>
+            <div class="upload-label-text" style="margin-top:4px;font-size:10px;">JPG, PNG o PDF · Máx. 10 MB</div>
+            <div class="file-name" id="fname-tr"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONDICIONAL: USDT Binance -->
+      <div class="cond-block" id="cond-usdt">
+        <div class="row-2">
+          <div class="field">
+            <label>ID de transacción (TxID) <span class="req">*</span></label>
+            <input type="text" name="txid_usdt" placeholder="Hash de la transacción en blockchain"/>
+          </div>
+          <div class="field">
+            <label>Monto en USDT <span class="req">*</span></label>
+            <input type="number" name="monto_usdt" placeholder="0.00 USDT" step="0.01"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Red utilizada</label>
+          <select name="red_usdt">
+            <option value="">Selecciona la red</option>
+            <option>TRC-20 (TRON)</option>
+            <option>BEP-20 (BSC)</option>
+            <option>ERC-20 (Ethereum)</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Captura del comprobante de Binance <span class="req">*</span></label>
+          <div class="file-upload-wrap">
+            <input type="file" name="capture_usdt" accept="image/*,.pdf" onchange="showFileName(this,'fname-usdt')"/>
+            <div class="upload-icon">📎</div>
+            <div class="upload-label-text">Arrastra aquí o <strong>haz clic para adjuntar</strong></div>
+            <div class="upload-label-text" style="margin-top:4px;font-size:10px;">JPG, PNG o PDF · Máx. 10 MB</div>
+            <div class="file-name" id="fname-usdt"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CONDICIONAL: PayPal -->
+      <div class="cond-block" id="cond-paypal">
+        <div class="row-2">
+          <div class="field">
+            <label>ID de transacción PayPal <span class="req">*</span></label>
+            <input type="text" name="txid_paypal" placeholder="Ej: 7AB12345CD678901E"/>
+          </div>
+          <div class="field">
+            <label>Monto pagado (USD) <span class="req">*</span></label>
+            <input type="number" name="monto_paypal" placeholder="0.00 USD" step="0.01"/>
+          </div>
+        </div>
+        <div class="field">
+          <label>Correo PayPal del remitente</label>
+          <input type="email" name="email_paypal" placeholder="correo@paypal.com"/>
+        </div>
+        <div class="field">
+          <label>Captura del comprobante de PayPal <span class="req">*</span></label>
+          <div class="file-upload-wrap">
+            <input type="file" name="capture_paypal" accept="image/*,.pdf" onchange="showFileName(this,'fname-pp')"/>
+            <div class="upload-icon">📎</div>
+            <div class="upload-label-text">Arrastra aquí o <strong>haz clic para adjuntar</strong></div>
+            <div class="upload-label-text" style="margin-top:4px;font-size:10px;">JPG, PNG o PDF · Máx. 10 MB</div>
+            <div class="file-name" id="fname-pp"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 03 Concepto del pago -->
+  <div class="section">
+    <div class="sec-label">
+      <div class="sec-num">03</div>
+      <div class="sec-title">Concepto</div>
+      <div class="sec-desc">Detalle del servicio y tipo de pago</div>
+    </div>
+    <div class="sec-body">
+      <div class="row-2">
+        <div class="field">
+          <label>Servicio contratado <span class="req">*</span></label>
+          <select name="servicio">
+            <option value="">Selecciona</option>
+            <option>Identidad Visual — Logotipo</option>
+            <option>Identidad Visual — Branding Completo</option>
+            <option>Gestión de Redes Sociales</option>
+            <option>Pack Redes Sociales</option>
+            <option>Manual de Marca</option>
+            <option>Papelería Corporativa</option>
+            <option>Otro</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Tipo de pago <span class="req">*</span></label>
+          <select name="tipo_pago">
+            <option value="">Selecciona</option>
+            <option>Anticipo — 50% inicial</option>
+            <option>Liquidación — 50% final</option>
+            <option>Pago completo — 100%</option>
+            <option>Recargo por revisión adicional (20%)</option>
+          </select>
+        </div>
+      </div>
+      <div class="field">
+        <label>Comentarios adicionales</label>
+        <textarea name="notas_pago" placeholder="Cualquier detalle relevante sobre este pago…"></textarea>
+      </div>
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-zone">
+    <div class="submit-aside">
+      <div class="tag">Confirmación</div>
+      <p>Recibirás confirmación de recepción en tu correo. Luis revisará el comprobante y te contactará a la brevedad.</p>
+      <a href="mailto:luissilvat2@gmail.com">luissilvat2@gmail.com</a>
+    </div>
+    <div class="submit-main">
+      <button type="submit" class="btn-submit" id="btn-pago">
+        <div class="spinner"></div>
+        <span class="btn-text">Registrar Pago</span>
+        <div class="btn-arrow">
+          <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <path d="M3 9h12M10 4l5 5-5 5" stroke="#00C8BE" stroke-width="1.5" stroke-linecap="square"/>
+          </svg>
+        </div>
+      </button>
+      <p class="btn-note">Pago · Luis Pietri · Diseño Gráfico</p>
+    </div>
+  </div>
+
+</form>
+</div><!-- /panel-pago -->
+
+<!-- FOOTER -->
+<footer>
+  <p>Luis Pietri — Lic. en Diseño Gráfico · Venezuela</p>
+  <p>© 2025 · Documento Legal · Todos los derechos reservados</p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // ─────────────────────────────────────────────────────
+  // FORMSPREE — reemplaza YOUR_FORM_ID con tu ID real
+  // Crea tu form gratis en: https://formspree.io
+  // Necesitas UN SOLO form ID para ambos archivos
+  // ─────────────────────────────────────────────────────
+  const FORMSPREE_URL = "https://formspree.io/f/xykvdzjr";
+
+  // ── Tabs ─────────────────────────────────────────────
+  function switchTab(t) {
+    ['tc','pago'].forEach(id=>{
+      document.getElementById('tab-'+id).classList.toggle('active', id===t);
+      document.getElementById('panel-'+id).classList.toggle('active', id===t);
+    });
+    window.scrollTo({top: document.querySelector('.tabs-bar').offsetTop - 10, behavior:'smooth'});
+  }
+
+  // ── Acceptance checkboxes ─────────────────────────────
+  function toggleAcc(el) {
+    const cb = el.querySelector('input[type="checkbox"]');
+    setTimeout(()=>{
+      el.classList.toggle('checked', cb.checked);
+      checkProceed();
+    }, 0);
+  }
+
+  function checkProceed() {
+    const allChecked = [1,2,3,4,5].every(i => document.getElementById('chk'+i).checked);
+    const nombre = document.getElementById('sig-nombre').value.trim();
+    const email  = document.getElementById('sig-email').value.trim();
+    document.getElementById('btn-proceed').disabled = !(allChecked && nombre && email);
+  }
+
+  ['sig-nombre','sig-email'].forEach(id=>{
+    document.getElementById(id).addEventListener('input', checkProceed);
+  });
+
+  // ── Ir al panel de pago ───────────────────────────────
+  function goToPago() {
+    document.getElementById('pago-nombre').value = document.getElementById('sig-nombre').value;
+    document.getElementById('pago-email').value  = document.getElementById('sig-email').value;
+    switchTab('pago');
+  }
+
+  // ── Método de pago ────────────────────────────────────
+  let currentMethod = null;
+
+  function selectMethod(m) {
+    document.querySelectorAll('.method-opt').forEach(el => el.classList.remove('selected'));
+    event.currentTarget.classList.add('selected');
+    ['pagomovil','transferencia','usdt','paypal'].forEach(id=>{
+      document.getElementById('cond-'+id).classList.remove('visible');
+    });
+    document.getElementById('cond-'+m).classList.add('visible');
+    currentMethod = m;
+  }
+
+  // ── Nombre del archivo adjunto ────────────────────────
+  function showFileName(input, targetId) {
+    const el = document.getElementById(targetId);
+    if (input.files && input.files[0]) {
+      el.textContent = '✓ ' + input.files[0].name;
+      el.style.display = 'block';
+    }
+  }
+
+  // ── Toast ─────────────────────────────────────────────
+  function showToast(msg, err=false){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.className = 'toast' + (err ? ' error' : '');
+    t.classList.add('show');
+    setTimeout(()=>t.classList.remove('show'), 5000);
+  }
+
+  // ── Enviar pago con Formspree ─────────────────────────
+  async function sendPago(e) {
+    e.preventDefault();
+    if (!currentMethod) { showToast('Selecciona un método de pago', true); return; }
+
+    const form = e.target;
+    const btn  = document.getElementById('btn-pago');
+    btn.classList.add('loading');
+    btn.disabled = true;
+
+    const fd = new FormData(form);
+
+    // Recoger datos en objeto limpio
+    const labels = {
+      titular:'Titular del pago', cedula:'Cédula / DNI',
+      email_pago:'Email', tel_pago:'Teléfono',
+      metodo:'Método de pago',
+      ref_pagomovil:'N° Referencia Pago Móvil', monto_pagomovil:'Monto',
+      banco_emisor_pagomovil:'Banco emisor', tel_pagomovil:'Teléfono origen',
+      ref_transferencia:'N° Referencia Transferencia', monto_transferencia:'Monto',
+      banco_emisor_transferencia:'Banco emisor',
+      txid_usdt:'TxID USDT', monto_usdt:'Monto USDT', red_usdt:'Red blockchain',
+      txid_paypal:'ID Transacción PayPal', monto_paypal:'Monto USD', email_paypal:'Email PayPal remitente',
+      servicio:'Servicio contratado', tipo_pago:'Tipo de pago', notas_pago:'Notas adicionales',
+    };
+
+    const payload = {
+      _subject: `[Registro de Pago] ${fd.get('titular')||''} — ${fd.get('metodo')||''}`,
+      _replyto: fd.get('email_pago') || '',
+      "Tipo": "Registro de Pago",
+      "Firmante (T&C)": document.getElementById('sig-nombre').value,
+      "Email firmante": document.getElementById('sig-email').value,
+      "Cláusulas aceptadas": "1, 2, 3, 4 y Declaración Final",
+    };
+
+    for (const [k, v] of fd.entries()) {
+      if (v instanceof File) {
+        if (v.name) payload[labels[k]||k] = `[Archivo: ${v.name} — ${(v.size/1024).toFixed(0)} KB]`;
+      } else if (v && v.trim()) {
+        payload[labels[k]||k] = v.trim();
+      }
+    }
+
+    // Para archivos (comprobante) usamos multipart/form-data directamente
+    const fileInput = form.querySelector(`#cond-${currentMethod} input[type="file"]`);
+    const hasFile = fileInput && fileInput.files[0];
+
+    try {
+      let res;
+      if (hasFile) {
+        // Con archivo: enviar como FormData multipart
+        const formData = new FormData();
+        Object.entries(payload).forEach(([k,v]) => formData.append(k, v));
+        formData.append('comprobante', fileInput.files[0]);
+        res = await fetch(FORMSPREE_URL, {
+          method: 'POST',
+          headers: { 'Accept': 'application/json' },
+          body: formData,
+        });
+      } else {
+        // Sin archivo: JSON plano
+        res = await fetch(FORMSPREE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+      }
+
+      const json = await res.json();
+
+      if (res.ok) {
+        showToast('✓ Pago registrado. Luis te confirmará a la brevedad.');
+        form.reset();
+        document.querySelectorAll('.method-opt').forEach(el=>el.classList.remove('selected'));
+        ['pagomovil','transferencia','usdt','paypal'].forEach(id=>document.getElementById('cond-'+id).classList.remove('visible'));
+        document.querySelectorAll('.file-name').forEach(el=>{ el.textContent=''; el.style.display='none'; });
+        currentMethod = null;
+      } else {
+        const errMsg = json?.errors?.map(e=>e.message).join(', ') || 'Error desconocido';
+        showToast('Error: ' + errMsg, true);
+        console.error('Formspree error:', json);
+      }
+    } catch(err) {
+      console.error(err);
+      showToast('Sin conexión. Escríbeme a luissilvat2@gmail.com', true);
+    }
+
+    btn.classList.remove('loading');
+    btn.disabled = false;
+  }
+</script>
+</body>
+</html>
